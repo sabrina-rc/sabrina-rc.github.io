@@ -1,7 +1,59 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h1>R Markdown Test</h1>
-<p>Post interactive plotly graphics to github using R Markdown.</h1>
+---
+output: 
+  html_document:
+    keep_md: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(Hmisc)
+library(plotly)
+library(knitr)
+library(treemap)
+library(d3Tree)
+library(rmarkdown)
+# Read in agency personnel spending data set
+agency_data <- readRDS(file="C:\\Users\\scastr01\\Desktop\\Spending Data\\Output\\2-3 data-agencyspendpiechart.RData")
+agency_data <- agency_data[order(-agency_data$x),]
+
+# Choropleth data
+# all agency
+state_counts <- readRDS(file="C:\\Users\\scastr01\\Desktop\\Spending Data\\Output\\9-1 AllAgencyEmployeeChoroData.RData")
+# Occupation data for treemap
+occupation_counts <- readRDS(file="C:\\Users\\scastr01\\Desktop\\Spending Data\\Output\\4-2 All Agency_Occupation_Counts_long.RData")
+```
+
+## Government-wide Personnel Spending Tool
+<center>**Connecting USAspending and federal employment data to visualize how personnel obligations across the federal governments budget translates to staffing across the government.**
+</center>
+
+###How do agency staffs compare?
+A total $350 billion dollars in personnel compensation and benefits have been obligated government-wide. Figure 1 shows how government-wide personnel compensation and benefits spending is spread across all agencies, with the largest proportion of personnel spending dedicated to the Department of Defense and the Department of Agriculture. 
+
+<center>
+```{r piechart, echo=FALSE}
+knitr::opts_chunk$set(fig.width = 6, fig.height = 5, echo = FALSE, strip.white = FALSE)
+multiC <- c("#14333d", "#1D4A58", "#185661", "#1E6C7A", "#34ABA1", "#12B7B4", 
+            "#1EDFCC", "#46C0A0", 
+           "#65D59A",  "#a2e5c2", "#B7F885", "#8CC96D", "#3c7f5c",
+           "#2D1925", "#38202D", "#433043", "#4A425A", "#5f4c56", "#877981", "#199199")
+  textform <- list(
+  family="Open Sans", 
+  size = 12)
+plot_ly(agency_data, labels= ~toptier_agency.abbreviation, values= ~x, type='pie', hole=.5,
+        textposition="inside",
+        textinfo = "label",
+        insidetextfont=list(color="#ffffff", family="Arial"),
+        hoverinfo = "text", 
+        text= ~paste(Group.1, "\n",
+                     percent_c.x, "%", "\n",
+                     "Personnel Obligations: $", obligations, "million"), 
+        marker=list(colors=multiC, 
+                    line=list(color="#e7f5f9", width=1)))  %>%
+  layout(title="Figure 1: Personnel Budgets Across Government", font= list(size=12, color="#2c2c2c"),
+         xaxis=list(showgrid=FALSE, zeroline=FALSE, showticklabels=FALSE),
+         yaxis=list(showgrid=FALSE, zeroline=FALSE, showticklabels=FALSE)) 
+
+```
 </body>
 </html>
